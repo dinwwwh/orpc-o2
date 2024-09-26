@@ -8,15 +8,15 @@ export type ServerRouteBuilder<
   TContract extends ContractRoute = ContractRoute,
   TCurrentContext extends ServerContext = TContext
 > = {
-  use<TExtraContext extends ServerContext>(
+  use<
+    TExtraContext extends ServerContext,
+    UInput extends TContract extends ContractRoute<any, any, infer TInput>
+      ? Partial<ValidationInferInput<TInput>>
+      : never
+  >(
     middleware:
-      | ServerMiddleware<
-          TCurrentContext,
-          TExtraContext,
-          TContract extends ContractRoute<any, any, infer TInput>
-            ? ValidationInferInput<TInput>
-            : never
-        >
+      | ServerMiddleware<TCurrentContext, TExtraContext, UInput>
+      | ServerMiddleware<TCurrentContext, TExtraContext>
       | ((
           input: TContract extends ContractRoute<any, any, infer TInput>
             ? ValidationInferOutput<TInput>

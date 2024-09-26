@@ -46,7 +46,8 @@ userRouteBuilder.handler(async () => {
   }
 })
 
-const middleware = {} as ServerMiddleware<{ b: number }, { mid: number }>
+const middleware1 = {} as ServerMiddleware<{ b: number }, { mid: number }>
+const middleware = {} as ServerMiddleware<{ b: number }, { mid: number }, { page: number }>
 const middleware2 = {} as ServerMiddleware<{ b: number }, { mid: number }, { z: number }>
 
 //
@@ -58,7 +59,7 @@ const middleware2 = {} as ServerMiddleware<{ b: number }, { mid: number }, { z: 
     typeof userRouteContract
   >
 )
-  .use(() => {
+  .use((input) => {
     return {
       context: {
         b: 123,
@@ -87,13 +88,69 @@ const middleware2 = {} as ServerMiddleware<{ b: number }, { mid: number }, { z: 
       },
     }
   })
-  .use(middleware)
+  .use(middleware1)
+  .use({} as ServerMiddleware<any, any, { page: number }>)
   .use(middleware2, () => ({ z: 5 }))
   // @ts-expect-error invalid input
   .use(middleware2)
+  .use(
+    middleware2.concat((input) => {
+      expectTypeOf(input).toEqualTypeOf<{
+        z: number
+      }>()
+      return {
+        context: {
+          ddd: 123,
+        },
+      }
+    }),
+    () => ({ z: 5 })
+  )
+  .use(
+    middleware1.concat((input) => {
+      expectTypeOf(input).toEqualTypeOf<unknown>()
+
+      return {
+        context: {
+          uuu: 123,
+        },
+      }
+    })
+  )
   .handler(async (_, context) => {
     expectTypeOf(context).toMatchTypeOf<{
       a: number
+      b: number
+      mid: number
+      ddd: number
+      uuu: number
+    }>()
+
+    return {
+      id: '123',
+      name: 'dinwwwh',
+      dob: new Date(),
+    }
+  })
+
+//
+;(
+  ({}) as ServerRouteBuilder<
+    {
+      b: number
+    },
+    typeof userRouteContract
+  >
+)
+  // @ts-expect-error invalid input
+  .use(middleware1.concat(middleware2))
+  .use(
+    ({} as ServerMiddleware<{ b: number }, {}, { page: number; size: number }>).concat(
+      {} as ServerMiddleware<{ b: number }, {}, { page: number }>
+    )
+  )
+  .handler(async (_, context) => {
+    expectTypeOf(context).toMatchTypeOf<{
       b: number
       mid: number
     }>()
@@ -104,3 +161,5 @@ const middleware2 = {} as ServerMiddleware<{ b: number }, { mid: number }, { z: 
       dob: new Date(),
     }
   })
+
+type F = 456 extends unknown ? true : false
