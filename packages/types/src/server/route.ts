@@ -1,16 +1,48 @@
-import { Promisable } from 'type-fest'
-import { ContractRoute, InferRouteRequestOutput, InferRouteResponseInput } from '../contract/route'
+import { IsEqual, Promisable } from 'type-fest'
+import { ContractRoute } from '../contract/route'
+import { ServerContext, ValidationInferInput, ValidationInferOutput } from '../types'
+import { ServerMiddleware } from './middleware'
 
 export type ServerRouteBuilder<
-  T extends {
-    contract: ContractRoute<any>
-  }
+  TContext extends ServerContext = ServerContext,
+  TContract extends ContractRoute = ContractRoute,
+  TCurrentContext extends ServerContext = TContext
 > = {
+  use<TExtraContext extends ServerContext>(
+    middleware:
+      | ServerMiddleware<TCurrentContext, TExtraContext>
+      | ((
+          opts: TContract extends ContractRoute<infer TMethod, infer TPath, infer TInput>
+            ? {
+                method: TMethod
+                path: TPath
+                input: ValidationInferOutput<TInput>
+                context: TCurrentContext
+              }
+            : never
+        ) => Promisable<{
+          context?: TExtraContext
+        } | void>)
+  ): ServerRouteBuilder<
+    TContext,
+    TContract,
+    TCurrentContext & (IsEqual<TExtraContext, ServerContext> extends true ? {} : TExtraContext)
+  >
+
   handler(
     handler: (
-      input: T['contract'] extends ContractRoute<infer T> ? InferRouteRequestOutput<T> : never
+      opts: TContract extends ContractRoute<infer TMethod, infer TPath, infer TInput>
+        ? {
+            method: TMethod
+            path: TPath
+            input: ValidationInferOutput<TInput>
+            context: TCurrentContext
+          }
+        : never
     ) => Promisable<
-      T['contract'] extends ContractRoute<infer T> ? InferRouteResponseInput<T> : never
+      TContract extends ContractRoute<any, any, any, infer TOutput>
+        ? ValidationInferInput<TOutput>
+        : never
     >
   ): void
 }

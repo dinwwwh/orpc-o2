@@ -25,3 +25,5 @@ export type MergeUnionByKey<
       [_ in K]: Y23
     }
   : {}
+
+export type ServerContext = Record<string, unknown>
