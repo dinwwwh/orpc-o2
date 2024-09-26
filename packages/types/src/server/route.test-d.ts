@@ -24,7 +24,7 @@ const userRouteContract = {} as ContractRoute<
 
 const userRouteBuilder = {} as ServerRouteBuilder<{}, typeof userRouteContract>
 
-userRouteBuilder.handler(async ({ input }) => {
+userRouteBuilder.handler(async (input) => {
   expectTypeOf(input).toEqualTypeOf<{
     page: number
     size: number
@@ -58,7 +58,7 @@ const middleware2 = {} as ServerMiddleware<{ b: number }, { mid: number }, { z: 
     typeof userRouteContract
   >
 )
-  .use(({ input, context }) => {
+  .use(() => {
     return {
       context: {
         b: 123,
@@ -66,7 +66,7 @@ const middleware2 = {} as ServerMiddleware<{ b: number }, { mid: number }, { z: 
     }
   })
   .use(
-    ({ input }: { input: { z: number } }) => {
+    (input: { z: number }) => {
       expectTypeOf(input).toEqualTypeOf<{
         z: number
       }>()
@@ -91,7 +91,7 @@ const middleware2 = {} as ServerMiddleware<{ b: number }, { mid: number }, { z: 
   .use(middleware2, () => ({ z: 5 }))
   // @ts-expect-error invalid input
   .use(middleware2)
-  .handler(async ({ input: _input, context }) => {
+  .handler(async (_, context) => {
     expectTypeOf(context).toMatchTypeOf<{
       a: number
       b: number

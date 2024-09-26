@@ -18,12 +18,14 @@ export type ServerRouteBuilder<
             : never
         >
       | ((
-          opts: TContract extends ContractRoute<infer TMethod, infer TPath, infer TInput>
+          input: TContract extends ContractRoute<any, any, infer TInput>
+            ? ValidationInferOutput<TInput>
+            : never,
+          context: TCurrentContext,
+          meta: TContract extends ContractRoute<infer TMethod, infer TPath>
             ? {
                 method: TMethod
                 path: TPath
-                input: ValidationInferOutput<TInput>
-                context: TCurrentContext
               }
             : never
         ) => Promisable<{
@@ -43,12 +45,12 @@ export type ServerRouteBuilder<
     middleware:
       | ServerMiddleware<TCurrentContext, TExtraContext, TMappedInput>
       | ((
-          opts: TContract extends ContractRoute<infer TMethod, infer TPath>
+          input: TMappedInput,
+          context: TCurrentContext,
+          meta: TContract extends ContractRoute<infer TMethod, infer TPath>
             ? {
                 method: TMethod
                 path: TPath
-                input: TMappedInput
-                context: TCurrentContext
               }
             : never
         ) => Promisable<{
@@ -67,12 +69,14 @@ export type ServerRouteBuilder<
 
   handler(
     handler: (
-      opts: TContract extends ContractRoute<infer TMethod, infer TPath, infer TInput>
+      input: TContract extends ContractRoute<any, any, infer TInput>
+        ? ValidationInferOutput<TInput>
+        : never,
+      context: TCurrentContext,
+      meta: TContract extends ContractRoute<infer TMethod, infer TPath>
         ? {
             method: TMethod
             path: TPath
-            input: ValidationInferOutput<TInput>
-            context: TCurrentContext
           }
         : never
     ) => Promisable<

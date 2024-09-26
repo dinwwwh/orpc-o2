@@ -1,4 +1,4 @@
-import { ServerContext } from '../types'
+import { HTTPMethod, ServerContext } from '../types'
 
 export type ServerMiddleware<
   TContext extends ServerContext = ServerContext,
@@ -6,6 +6,13 @@ export type ServerMiddleware<
   TInput = unknown
 > = {
   __sm: {
-    fn: (opts: { context: TContext; input: TInput }) => { context?: TExtraContext } | void
+    fn: (
+      input: TInput,
+      context: TContext,
+      meta: {
+        method: HTTPMethod
+        path: string
+      }
+    ) => { context?: TExtraContext } | void
   }
 }
