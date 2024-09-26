@@ -16,6 +16,9 @@ importers:
       valibot:
         specifier: ^0.42.1
         version: 0.42.1(typescript@5.6.2)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@dinwwwh/tsconfig':
         specifier: latest
@@ -490,6 +493,9 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
+  zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+
 snapshots:
 
   '@dinwwwh/tsconfig@0.0.11': {}
@@ -852,3 +858,5 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  zod@3.23.8: {}

@@ -2,7 +2,7 @@ import { date, number, object, string } from 'valibot'
 import { expectTypeOf } from 'vitest'
 import { ContractRoute } from '../contract/route'
 import { ExtendedServerMiddleware, ServerMiddleware } from './middleware'
-import { ServerRouteBuilder } from './route'
+import { ServerRouteBuilder } from './route-builder'
 
 const InputSchema = object({
   page: number(),
