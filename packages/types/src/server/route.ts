@@ -10,7 +10,13 @@ export type ServerRouteBuilder<
 > = {
   use<TExtraContext extends ServerContext>(
     middleware:
-      | ServerMiddleware<TCurrentContext, TExtraContext>
+      | ServerMiddleware<
+          TCurrentContext,
+          TExtraContext,
+          TContract extends ContractRoute<any, any, infer TInput>
+            ? ValidationInferInput<TInput>
+            : never
+        >
       | ((
           opts: TContract extends ContractRoute<infer TMethod, infer TPath, infer TInput>
             ? {
@@ -23,6 +29,36 @@ export type ServerRouteBuilder<
         ) => Promisable<{
           context?: TExtraContext
         } | void>)
+  ): ServerRouteBuilder<
+    TContext,
+    TContract,
+    TCurrentContext & (IsEqual<TExtraContext, ServerContext> extends true ? {} : TExtraContext)
+  >
+  use<
+    TExtraContext extends ServerContext,
+    TMappedInput = TContract extends ContractRoute<any, any, infer TInput>
+      ? ValidationInferInput<TInput>
+      : never
+  >(
+    middleware:
+      | ServerMiddleware<TCurrentContext, TExtraContext, TMappedInput>
+      | ((
+          opts: TContract extends ContractRoute<infer TMethod, infer TPath>
+            ? {
+                method: TMethod
+                path: TPath
+                input: TMappedInput
+                context: TCurrentContext
+              }
+            : never
+        ) => Promisable<{
+          context?: TExtraContext
+        } | void>),
+    mapInput: (
+      input: TContract extends ContractRoute<any, any, infer TInput>
+        ? ValidationInferInput<TInput>
+        : never
+    ) => TMappedInput
   ): ServerRouteBuilder<
     TContext,
     TContract,

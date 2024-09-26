@@ -47,6 +47,7 @@ userRouteBuilder.handler(async () => {
 })
 
 const middleware = {} as ServerMiddleware<{ b: number }, { mid: number }>
+const middleware2 = {} as ServerMiddleware<{ b: number }, { mid: number }, { z: number }>
 
 //
 ;(
@@ -64,8 +65,33 @@ const middleware = {} as ServerMiddleware<{ b: number }, { mid: number }>
       },
     }
   })
+  .use(
+    ({ input }: { input: { z: number } }) => {
+      expectTypeOf(input).toEqualTypeOf<{
+        z: number
+      }>()
+
+      return {
+        context: {
+          b: 123,
+        },
+      }
+    },
+    () => ({ z: 123 })
+  )
+  // @ts-expect-error invalid input
+  .use(({ input: _input }: { input: { z: number } }) => {
+    return {
+      context: {
+        b: 123,
+      },
+    }
+  })
   .use(middleware)
-  .handler(async ({ input, context }) => {
+  .use(middleware2, () => ({ z: 5 }))
+  // @ts-expect-error invalid input
+  .use(middleware2)
+  .handler(async ({ input: _input, context }) => {
     expectTypeOf(context).toMatchTypeOf<{
       a: number
       b: number
