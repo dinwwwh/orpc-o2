@@ -1,4 +1,4 @@
-import { IsEqual, Merge } from 'type-fest'
+import { IsEqual } from 'type-fest'
 import { BaseSchema, InferInput, InferOutput } from 'valibot'
 
 export type HTTPPath = `/${string}`
@@ -35,4 +35,4 @@ export type MergeServerContext<TA extends ServerContext, TB extends ServerContex
   ? TB
   : IsEqual<TB, ServerContext> extends true
   ? TA
-  : Merge<TA, TB>
+  : Omit<TA, keyof TB> & TB

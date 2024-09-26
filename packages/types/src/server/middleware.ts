@@ -1,4 +1,3 @@
-import { IsUnknown, Promisable } from 'type-fest'
 import { HTTPMethod, MergeServerContext, ServerContext } from '../types'
 
 export type ServerMiddleware<
@@ -6,50 +5,39 @@ export type ServerMiddleware<
   TExtraContext extends ServerContext = ServerContext,
   TInput = unknown
 > = {
-  __sm: {
-    fn: (
-      input: TInput,
-      context: TContext,
-      meta: {
-        method: HTTPMethod
-        path: string
-      }
-    ) => { context?: TExtraContext } | void
-  }
+  (
+    input: TInput,
+    context: TContext,
+    meta: {
+      method: HTTPMethod
+      path: string
+    }
+  ): { context?: TExtraContext } | void
+}
 
-  concat<UExtraContext extends ServerContext, UInput extends Partial<TInput>>(
-    middleware:
-      | ServerMiddleware<
-          MergeServerContext<TContext, TExtraContext>,
-          UExtraContext,
-          IsUnknown<TInput> extends true ? unknown : UInput
-        >
-      | ServerMiddleware<MergeServerContext<TContext, TExtraContext>, UExtraContext>
-      | ((
-          input: TInput,
-          context: TContext,
-          meta: {
-            method: HTTPMethod
-            path: string
-          }
-        ) => Promisable<{
-          context?: UExtraContext
-        } | void>)
-  ): ServerMiddleware<TContext, MergeServerContext<TExtraContext, UExtraContext>, TInput>
+export type ExtendedServerMiddleware<
+  TContext extends ServerContext = ServerContext,
+  TExtraContext extends ServerContext = ServerContext,
+  TInput = unknown
+> = ServerMiddleware<TContext, TExtraContext, TInput> & {
+  concat<UExtraContext extends ServerContext, UInput>(
+    middleware: ServerMiddleware<
+      MergeServerContext<TContext, TExtraContext>,
+      UExtraContext,
+      UInput & TInput
+    >
+  ): ExtendedServerMiddleware<
+    TContext,
+    MergeServerContext<TExtraContext, UExtraContext>,
+    UInput & TInput
+  >
 
-  concat<UExtraContext extends ServerContext, UMappedInput = TInput>(
-    middleware:
-      | ServerMiddleware<MergeServerContext<TContext, TExtraContext>, UExtraContext, UMappedInput>
-      | ((
-          input: UMappedInput,
-          context: TContext,
-          meta: {
-            method: HTTPMethod
-            path: string
-          }
-        ) => Promisable<{
-          context?: UExtraContext
-        } | void>),
+  concat<UExtraContext extends ServerContext, UMappedInput extends TInput>(
+    middleware: ServerMiddleware<
+      MergeServerContext<TContext, TExtraContext>,
+      UExtraContext,
+      UMappedInput
+    >,
     mapInput: (input: TInput) => UMappedInput
-  ): ServerMiddleware<TContext, MergeServerContext<TExtraContext, UExtraContext>, TInput>
+  ): ExtendedServerMiddleware<TContext, MergeServerContext<TExtraContext, UExtraContext>, TInput>
 }

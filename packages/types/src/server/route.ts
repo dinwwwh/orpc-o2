@@ -1,78 +1,50 @@
-import { IsEqual, Promisable } from 'type-fest'
+import { Promisable } from 'type-fest'
 import { ContractRoute } from '../contract/route'
-import { ServerContext, ValidationInferInput, ValidationInferOutput } from '../types'
+import {
+  MergeServerContext,
+  ServerContext,
+  ValidationInferInput,
+  ValidationInferOutput,
+} from '../types'
 import { ServerMiddleware } from './middleware'
 
 export type ServerRouteBuilder<
   TContext extends ServerContext = ServerContext,
   TContract extends ContractRoute = ContractRoute,
-  TCurrentContext extends ServerContext = TContext
+  TExtraContext extends ServerContext = ServerContext
 > = {
+  use<UExtraContext extends ServerContext>(
+    middleware: ServerMiddleware<
+      MergeServerContext<TContext, TExtraContext>,
+      UExtraContext,
+      TContract extends ContractRoute<any, any, infer TInput> ? ValidationInferInput<TInput> : never
+    >
+  ): ServerRouteBuilder<TContext, TContract, MergeServerContext<TExtraContext, UExtraContext>>
+
   use<
-    TExtraContext extends ServerContext,
-    UInput extends TContract extends ContractRoute<any, any, infer TInput>
-      ? Partial<ValidationInferInput<TInput>>
-      : never
-  >(
-    middleware:
-      | ServerMiddleware<TCurrentContext, TExtraContext, UInput>
-      | ServerMiddleware<TCurrentContext, TExtraContext>
-      | ((
-          input: TContract extends ContractRoute<any, any, infer TInput>
-            ? ValidationInferOutput<TInput>
-            : never,
-          context: TCurrentContext,
-          meta: TContract extends ContractRoute<infer TMethod, infer TPath>
-            ? {
-                method: TMethod
-                path: TPath
-              }
-            : never
-        ) => Promisable<{
-          context?: TExtraContext
-        } | void>)
-  ): ServerRouteBuilder<
-    TContext,
-    TContract,
-    TCurrentContext & (IsEqual<TExtraContext, ServerContext> extends true ? {} : TExtraContext)
-  >
-  use<
-    TExtraContext extends ServerContext,
-    TMappedInput = TContract extends ContractRoute<any, any, infer TInput>
+    UExtraContext extends ServerContext,
+    UMappedInput = TContract extends ContractRoute<any, any, infer TInput>
       ? ValidationInferInput<TInput>
       : never
   >(
-    middleware:
-      | ServerMiddleware<TCurrentContext, TExtraContext, TMappedInput>
-      | ((
-          input: TMappedInput,
-          context: TCurrentContext,
-          meta: TContract extends ContractRoute<infer TMethod, infer TPath>
-            ? {
-                method: TMethod
-                path: TPath
-              }
-            : never
-        ) => Promisable<{
-          context?: TExtraContext
-        } | void>),
+    middleware: ServerMiddleware<
+      MergeServerContext<TContext, TExtraContext>,
+      UExtraContext,
+      UMappedInput
+    >,
     mapInput: (
       input: TContract extends ContractRoute<any, any, infer TInput>
         ? ValidationInferInput<TInput>
         : never
-    ) => TMappedInput
-  ): ServerRouteBuilder<
-    TContext,
-    TContract,
-    TCurrentContext & (IsEqual<TExtraContext, ServerContext> extends true ? {} : TExtraContext)
-  >
+    ) => UMappedInput
+  ): ServerRouteBuilder<TContext, TContract, MergeServerContext<TExtraContext, UExtraContext>>
 
   handler(
     handler: (
       input: TContract extends ContractRoute<any, any, infer TInput>
         ? ValidationInferOutput<TInput>
         : never,
-      context: TCurrentContext,
+      context: MergeServerContext<TContext, TExtraContext>,
       meta: TContract extends ContractRoute<infer TMethod, infer TPath>
         ? {
             method: TMethod
