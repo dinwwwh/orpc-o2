@@ -1,15 +1,15 @@
 import { HTTPMethod, HTTPPath, ValidationSchema } from '../types'
 
 export type ContractRoute<
+  TInputSchema extends ValidationSchema = ValidationSchema,
+  TOutputSchema extends ValidationSchema = ValidationSchema,
   TMethod extends HTTPMethod = HTTPMethod,
-  TPath extends HTTPPath = HTTPPath,
-  TInput extends ValidationSchema = ValidationSchema,
-  TOutput extends ValidationSchema = ValidationSchema
+  TPath extends HTTPPath = HTTPPath
 > = {
   __cr: {
-    path: TPath
-    method: TMethod
-    input: TInput
-    output: TOutput
+    path?: TPath
+    method?: TMethod
+    input?: TInputSchema
+    output?: TOutputSchema
   }
 }

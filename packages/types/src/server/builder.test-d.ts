@@ -20,7 +20,7 @@ serverBuilder
       postId: '123',
     })
   )
-  .contract({} as ContractRoute<'DELETE', '/post/{postId}', typeof Schema1, typeof Schema2>)
+  .contract({} as ContractRoute<typeof Schema1, typeof Schema2, 'DELETE', '/post/{postId}'>)
   .handler(async (input, context) => {
     return {
       postId: input.postId,

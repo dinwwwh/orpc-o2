@@ -16,10 +16,10 @@ const OutputSchema = object({
 })
 
 const userRouteContract = {} as ContractRoute<
-  'GET',
-  '/user',
   typeof InputSchema,
-  typeof OutputSchema
+  typeof OutputSchema,
+  'GET',
+  '/user'
 >
 
 const userRouteBuilder = {} as ServerRouteBuilder<{}, typeof userRouteContract>

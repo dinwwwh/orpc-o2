@@ -18,20 +18,22 @@ export type ServerRouteBuilderBuilder<
     middleware: ServerMiddleware<
       TContext,
       UExtraContext,
-      TContract extends ContractRoute<any, any, infer TInput> ? ValidationInferInput<TInput> : never
+      TContract extends ContractRoute<infer TInputSchema>
+        ? ValidationInferInput<TInputSchema>
+        : never
     >
   ): ServerRouteBuilder<TContext, TContract, UExtraContext>
 
   use<
     UExtraContext extends ServerContext,
-    UMappedInput = TContract extends ContractRoute<any, any, infer TInput>
-      ? ValidationInferInput<TInput>
+    UMappedInput = TContract extends ContractRoute<infer TInputSchema>
+      ? ValidationInferInput<TInputSchema>
       : never
   >(
     middleware: ServerMiddleware<TContext, UExtraContext, UMappedInput>,
     mapInput: (
-      input: TContract extends ContractRoute<any, any, infer TInput>
-        ? ValidationInferInput<TInput>
+      input: TContract extends ContractRoute<infer TInputSchema>
+        ? ValidationInferInput<TInputSchema>
         : never
     ) => UMappedInput
   ): ServerRouteBuilder<TContext, TContract, UExtraContext>

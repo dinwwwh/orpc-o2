@@ -1,6 +1,8 @@
 import { Promisable } from 'type-fest'
 import { ContractRoute } from '../contract/route'
 import {
+  HTTPMethod,
+  HTTPPath,
   MergeServerContext,
   ServerContext,
   ValidationInferInput,
@@ -23,19 +25,17 @@ export type ServerRouteHandler<
   TContract extends ContractRoute = ContractRoute
 > = {
   (
-    input: TContract extends ContractRoute<any, any, infer TInput>
-      ? ValidationInferOutput<TInput>
+    input: TContract extends ContractRoute<infer TInputSchema>
+      ? ValidationInferOutput<TInputSchema>
       : never,
     context: TContext,
-    meta: TContract extends ContractRoute<infer TMethod, infer TPath>
-      ? {
-          method: TMethod
-          path: TPath
-        }
-      : never
+    meta: {
+      method: HTTPMethod
+      path: HTTPPath
+    }
   ): Promisable<
-    TContract extends ContractRoute<any, any, any, infer TOutput>
-      ? ValidationInferInput<TOutput>
+    TContract extends ContractRoute<any, infer TOutputSchema>
+      ? ValidationInferInput<TOutputSchema>
       : never
   >
 }
