@@ -1,5 +1,5 @@
 import { ContractRoute } from '../contract/route'
-import { ServerContext, ValidationInferInput } from '../types'
+import { SchemaInput, ServerContext } from '../types'
 import { ServerMiddleware } from './middleware'
 import { ServerRoute, ServerRouteHandler } from './route'
 import { ServerRouteBuilder } from './route-builder'
@@ -18,23 +18,19 @@ export type ServerRouteBuilderBuilder<
     middleware: ServerMiddleware<
       TContext,
       UExtraContext,
-      TContract extends ContractRoute<infer TInputSchema>
-        ? ValidationInferInput<TInputSchema>
-        : never
+      TContract extends ContractRoute<infer TInputSchema> ? SchemaInput<TInputSchema> : never
     >
   ): ServerRouteBuilder<TContext, TContract, UExtraContext>
 
   use<
     UExtraContext extends ServerContext,
     UMappedInput = TContract extends ContractRoute<infer TInputSchema>
-      ? ValidationInferInput<TInputSchema>
+      ? SchemaInput<TInputSchema>
       : never
   >(
     middleware: ServerMiddleware<TContext, UExtraContext, UMappedInput>,
     mapInput: (
-      input: TContract extends ContractRoute<infer TInputSchema>
-        ? ValidationInferInput<TInputSchema>
-        : never
+      input: TContract extends ContractRoute<infer TInputSchema> ? SchemaInput<TInputSchema> : never
     ) => UMappedInput
   ): ServerRouteBuilder<TContext, TContract, UExtraContext>
 

@@ -1,8 +1,8 @@
-import { HTTPMethod, HTTPPath, ValidationSchema } from '../types'
+import { HTTPMethod, HTTPPath, Schema } from '../types'
 
 export type ContractRoute<
-  TInputSchema extends ValidationSchema = ValidationSchema,
-  TOutputSchema extends ValidationSchema = ValidationSchema,
+  TInputSchema extends Schema = Schema,
+  TOutputSchema extends Schema = Schema,
   TMethod extends HTTPMethod = HTTPMethod,
   TPath extends HTTPPath = HTTPPath
 > = {

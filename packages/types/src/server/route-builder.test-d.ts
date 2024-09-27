@@ -164,3 +164,18 @@ ffdfd
       dob: new Date(),
     }
   })
+
+const f3 = {} as ServerRouteBuilder<
+  {
+    a: number
+  },
+  ContractRoute<typeof InputSchema>
+>
+
+const a = f3.handler(async () => {
+  return {
+    id: '123',
+  }
+})
+
+const b = await a.__sr.handler({ page: 5, size: 10 }, { a: 123 }, { method: 'GET', path: '/user' })

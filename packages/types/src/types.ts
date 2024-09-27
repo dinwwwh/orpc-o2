@@ -5,9 +5,13 @@ export type HTTPPath = `/${string}`
 export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 export type HTTPStatus = number
 
-export type ValidationSchema = BaseSchema<any, any, any>
-export type ValidationInferInput<T> = T extends ValidationSchema ? InferInput<T> : never
-export type ValidationInferOutput<T> = T extends ValidationSchema ? InferOutput<T> : never
+export type Schema = BaseSchema<any, any, any>
+export type SchemaInput<T extends Schema, TFallback = unknown> = IsEqual<T, Schema> extends true
+  ? TFallback
+  : InferInput<T>
+export type SchemaOutput<T extends Schema, TFallback = unknown> = IsEqual<T, Schema> extends true
+  ? TFallback
+  : InferOutput<T>
 
 export type ServerContext = Record<string, unknown>
 export type MergeServerContext<TA extends ServerContext, TB extends ServerContext> = IsEqual<

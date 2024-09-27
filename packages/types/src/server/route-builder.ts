@@ -1,5 +1,5 @@
 import { ContractRoute } from '../contract/route'
-import { MergeServerContext, ServerContext, ValidationInferInput } from '../types'
+import { MergeServerContext, SchemaInput, ServerContext } from '../types'
 import { ServerMiddleware } from './middleware'
 import { ServerRoute, ServerRouteHandler } from './route'
 
@@ -12,16 +12,14 @@ export type ServerRouteBuilder<
     middleware: ServerMiddleware<
       MergeServerContext<TContext, TExtraContext>,
       UExtraContext,
-      TContract extends ContractRoute<infer TInputSchema>
-        ? ValidationInferInput<TInputSchema>
-        : never
+      TContract extends ContractRoute<infer TInputSchema> ? SchemaInput<TInputSchema> : never
     >
   ): ServerRouteBuilder<TContext, TContract, MergeServerContext<TExtraContext, UExtraContext>>
 
   use<
     UExtraContext extends ServerContext,
     UMappedInput = TContract extends ContractRoute<infer TInputSchema>
-      ? ValidationInferInput<TInputSchema>
+      ? SchemaInput<TInputSchema>
       : never
   >(
     middleware: ServerMiddleware<
@@ -30,13 +28,19 @@ export type ServerRouteBuilder<
       UMappedInput
     >,
     mapInput: (
-      input: TContract extends ContractRoute<infer TInputSchema>
-        ? ValidationInferInput<TInputSchema>
-        : never
+      input: TContract extends ContractRoute<infer TInputSchema> ? SchemaInput<TInputSchema> : never
     ) => UMappedInput
   ): ServerRouteBuilder<TContext, TContract, MergeServerContext<TExtraContext, UExtraContext>>
 
-  handler(
-    handler: ServerRouteHandler<MergeServerContext<TContext, TExtraContext>, TContract>
-  ): ServerRoute<TContext, TContract, TExtraContext>
+  handler<
+    UHandlerOutput extends TContract extends ContractRoute<any, infer TOutputSchema>
+      ? SchemaInput<TOutputSchema>
+      : never
+  >(
+    handler: ServerRouteHandler<
+      MergeServerContext<TContext, TExtraContext>,
+      TContract,
+      UHandlerOutput
+    >
+  ): ServerRoute<TContext, TContract, TExtraContext, UHandlerOutput>
 }
